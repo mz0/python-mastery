@@ -1,8 +1,7 @@
 # readrides.py
 
 import csv
-
-#row = (route, date, daytype, rides)
+from reader import read_csv_as
 
 # Memory Use (Bytes): Current 179,414,046, Peak 179,427,882
 # def read_rides_as_dict(filename):
@@ -25,13 +24,6 @@ import csv
 #                 print(f'Line {line_count:5d}: "{line}" is malformed')
 #     return records
 
-# class Row:
-#     def __init__(self, route, date, daytype, rides):
-#         self.route = route
-#         self.date = date
-#         self.daytype = daytype
-#         self.rides = rides
-
 # A named tuple
 # from collections import namedtuple
 # Row = namedtuple('Row', ['route', 'date', 'daytype', 'rides'])
@@ -45,8 +37,12 @@ class Row:
         self.daytype = day_type
         self.rides = rides
 
+    @classmethod
+    def from_row(cls, row):
+        return cls(row[0], row[1], row[2], int(row[3]))
+
+# csv, reader, _as  Memory Use (Bytes): Current 110,109,311, Peak 110,139,584
 # Class with slots: Memory Use (Bytes): Current 110,108,910, Peak 110,122,746
-# Class (no slots): Memory Use (Bytes): Current 128,593,686, Peak 128,607,522
 def read_rides_as_class(filename):
     records = []
 
@@ -108,6 +104,6 @@ def read_rides_as_tuples(filename):
 if __name__ == '__main__':
     import tracemalloc
     tracemalloc.start()
-    rows = read_rides_as_tuples('Data/ctabus.csv')
+    rows = read_csv_as('Data/ctabus.csv', Row)
     current, peak = tracemalloc.get_traced_memory()
     print(f'Memory Use (Bytes): Current {current:,}, Peak {peak:,}')

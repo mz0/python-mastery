@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 class Stock:
+    types = (str, int, float)
     def __init__(self, name, shares, price):
         self.name = name
         self.shares = shares
@@ -9,6 +12,15 @@ class Stock:
 
     def sell(self, qty):
         self.shares -= qty
+
+    @classmethod
+    def from_row(cls, row):
+        vals = [f(val) for f, val in zip(cls.types, row)]
+        return cls(*vals)
+
+
+class DStock(Stock):
+    types = (str, int, Decimal)
 
 
 def read_portfolio(filename):
