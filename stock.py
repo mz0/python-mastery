@@ -1,23 +1,36 @@
 from decimal import Decimal
 
 class Stock:
-    types = (str, int, float)
+    _types = (str, int, float)
     def __init__(self, name, shares, price):
         self.name = name
-        self.shares = shares
+        self._shares = non_negative_int(shares)
         self.price = price
 
+    @property
+    def shares(self):
+        return self._shares
+
+    @shares.setter
+    def shares(self, value):
+        self._shares = non_negative_int(value)
+
+    @property
     def cost(self):
-        return self.shares * self.price
+        return round(self.shares * self.price, 2)
 
     def sell(self, qty):
         self.shares -= qty
 
     @classmethod
     def from_row(cls, row):
-        vals = [f(val) for f, val in zip(cls.types, row)]
+        vals = [f(val) for f, val in zip(cls._types, row)]
         return cls(*vals)
 
+def non_negative_int(val):
+    if not isinstance(val, int) or val < 0:
+        raise TypeError('Expected int >= 0')
+    return val
 
 class DStock(Stock):
     types = (str, int, Decimal)
