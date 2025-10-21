@@ -27,6 +27,10 @@ class Stock:
         vals = [f(val) for f, val in zip(cls._types, row)]
         return cls(*vals)
 
+    def __repr__(self):
+        return f"Stock('{self.name}', {self._shares}, {self.price})"
+
+
 def non_negative_int(val):
     if not isinstance(val, int) or val < 0:
         raise TypeError('Expected int >= 0')
@@ -49,3 +53,9 @@ if __name__ == '__main__':
     portfolio = read_portfolio('Data/portfolio.csv')
     for s in portfolio:
         print('%10s %10d %10.2f' % (s.name, s.shares, s.price))
+
+    from datetime import date
+    d = date(2007, 6, 14)
+    print('The date is', repr(d))
+    print(f'The date is {d!r}')
+    print('The date is %r' % d)
