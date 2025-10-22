@@ -178,3 +178,37 @@ class redirect_stdout:
 * Multiple Inheritance, Cooperative Inheritance
 * Mixins
 * [Exercise 3.8](Exercises/ex3_8.md)
+
+## Inside Object
+```python
+from stock import Stock
+goog = Stock("GOOG", 100, 490.10)
+f'{goog.__module__}.{goog.__class__.__name__}'  # 'stock.Stock'
+
+goog.__dict__
+{'name': 'GOOG', '_shares': 100, 'price': 490.1}
+Stock.__dict__
+mappingproxy(
+  {'__module__': 'stock',
+   '_types':      (<class 'str'>, <class 'int'>, <class 'float'>),
+   '__init__':    <function Stock.__init__ at 0x7..a>,
+   'shares':      <property object at ..>,
+   'cost':        <property object at ..>,
+   'sell':        <function Stock.sell at ..>,
+   'from_row':    <classmethod(<function Stock.from_row at ..>)>,
+   '__repr__':    <function Stock.__repr__ at ..>,
+   '__dict__':    <attribute '__dict__' of 'Stock' objects>,
+   '__weakref__': <attribute '__weakref__' of 'Stock' objects>,
+   '__doc__':     None
+  }
+)
+
+del goog.price
+goog.__dict__  # {'name': 'GOOG', '_shares': 100}
+goog.price = 42.0
+goog.__dict__['buy'] = 123.4
+Stock.__dict__['cost'](goog)  # TypeError: 'property' object is not callable
+Stock.__dict__['sell'](goog, 1)
+repr(goog)
+"Stock('GOOG', 99, 42.0)"
+```
