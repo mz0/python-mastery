@@ -172,3 +172,9 @@ class redirect_stdout:
   def __exit__(self, ty, val, tb):
     sys.stdout = self.stdout
 ```
+
+### Advanced Inheritance, Mixins
+3-84..3-94 pp. 235-245
+* Multiple Inheritance, Cooperative Inheritance
+* Mixins
+* [Exercise 3.8](Exercises/ex3_8.md)
