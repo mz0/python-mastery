@@ -212,3 +212,61 @@ Stock.__dict__['sell'](goog, 1)
 repr(goog)
 "Stock('GOOG', 99, 42.0)"
 ```
+### Multiple Inheritance and MRO
+* Attribute lookup: object (local) -> Class -> Base Class
+* Method Resolution Order - walk down `__mro__` - first match wins
+```python
+class S1(Stock): pass
+class S2(S1): pass
+s2o = S2("SOUP", 100, 42.42)
+S2.__mro__
+(<class '__main__.S2'>, <class '__main__.S1'>, <class 'stock.Stock'>, <class 'object'>)
+Stock.__mro__
+(<class 'stock.Stock'>, <class 'object'>)
+object.__mro__
+(<class 'object'>,)
+```
+* Ordering rules
+  * _Children_ before _parents_
+  * _Parents_ go in order (first listed parent wins if there's a "tie")
+* Multiple Inheritance hierarchy is flattened using C3 Linearization algorithm
+```python
+class A(object): pass
+class B(object): pass
+class C(A,B): pass
+class D(B): pass
+class E(C,D): pass
+E.__mro__
+(<class '__main__.E'>, <class '__main__.C'>,
+ <class '__main__.A'>, <class '__main__.D'>,
+ <class '__main__.B'>, <class 'object'>)
+```
+* All children of a common parent go first
+```python
+# m.py
+class Base(object): pass
+class A(Base): pass
+class B(Base): pass
+class C(Base): pass
+class D(A, B, C): pass
+
+from m import *
+D.__mro__
+(<class 'm.D'>,
+ <class 'm.A'>, <class 'm.B'>, <class 'm.C'>,
+ <class 'm.Base'>, <class 'object'>)
+```
+* `super()` delegates to the next class on the MRO
+* These classes are _not_ the same! `super()` binds to the next implementation
+  that is defined in the instance's MRO.  It's _not_ necessarily the immediate parent
+  ```python
+  class A(Base):
+    def spam(self):
+      Base.spam(self)
+
+  class A(Base):
+    def spam(self):
+      super().spam()
+  ```
+* Class A is **anti-pattern**: If multiple inheritance is used,
+  a direct parent call will probably violate the MRO
