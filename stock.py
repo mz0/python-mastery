@@ -1,61 +1,65 @@
-from decimal import Decimal
+# stock.py
+from validate import String, PositiveInteger, PositiveFloat
 
 class Stock:
-    _types = (str, int, float)
+    name   = String('name')
+    shares = PositiveInteger('shares')
+    price  = PositiveFloat('price')
+
     def __init__(self, name, shares, price):
         self.name = name
-        self._shares = non_negative_int(shares)
+        self.shares = shares
         self.price = price
 
-    @property
-    def shares(self):
-        return self._shares
+    def __repr__(self):
+        # Note: The !r format code produces the repr() string
+        return f'{type(self).__name__}({self.name!r}, {self.shares!r}, {self.price!r})'
 
-    @shares.setter
-    def shares(self, value):
-        self._shares = non_negative_int(value)
-
-    @property
-    def cost(self):
-        return round(self.shares * self.price, 2)
-
-    def sell(self, qty):
-        self.shares -= qty
+    def __eq__(self, other):
+        return isinstance(other, Stock) and ((self.name, self.shares, self.price) ==
+                (other.name, other.shares, other.price))
 
     @classmethod
     def from_row(cls, row):
-        vals = [f(val) for f, val in zip(cls._types, row)]
-        return cls(*vals)
+        values = [func(val) for func, val in zip(cls._types, row)]
+        return cls(*values)
 
-    def __repr__(self):
-        return f"Stock('{self.name}', {self._shares}, {self.price})"
+    @property
+    def cost(self):
+        return self.shares * self.price
 
+    def sell(self, nshares):
+        self.shares -= nshares
 
-def non_negative_int(val):
-    if not isinstance(val, int) or val < 0:
-        raise TypeError('Expected int >= 0')
-    return val
-
-class DStock(Stock):
-    types = (str, int, Decimal)
-
-
-def read_portfolio(filename):
-    portf = list()
-    with open(filename) as f:
-        f.readline()  # skip headers
-        for line in f:
-            r = line.split(',')
-            portf.append(Stock(r[0].strip('"'), int(r[1]), float(r[2])))
-    return portf
-
+# Sample
 if __name__ == '__main__':
-    portfolio = read_portfolio('Data/portfolio.csv')
-    for s in portfolio:
-        print('%10s %10d %10.2f' % (s.name, s.shares, s.price))
+    import tableformat
+    import reader
+    from tableformat import (
+        print_table,
+        create_formatter,
+        TextTableFormatter,
+        ColumnFormatMixin,
+        UpperHeadersMixin
+        )
 
-    from datetime import date
-    d = date(2007, 6, 14)
-    print('The date is', repr(d))
-    print(f'The date is {d!r}')
-    print('The date is %r' % d)
+    portfolio = reader.read_csv_as_instances('../../Data/portfolio.csv', Stock)
+
+    class PortfolioFormatter(ColumnFormatMixin, TextTableFormatter):
+        formats = ['%s','%d','%0.2f']
+
+    formatter = PortfolioFormatter()
+    print_table(portfolio,['name','shares','price'], formatter)
+
+    class PortfolioFormatter(UpperHeadersMixin, TextTableFormatter):
+        pass
+
+    formatter = PortfolioFormatter()
+    print_table(portfolio, ['name','shares','price'], formatter)
+
+    # Factory function version
+    formatter = create_formatter('text', column_formats=['%s','%d','%0.2f'])
+    print_table(portfolio, ['name','shares','price'], formatter)
+
+    formatter = create_formatter('text', upper_headers=True)
+    print_table(portfolio, ['name','shares','price'], formatter)

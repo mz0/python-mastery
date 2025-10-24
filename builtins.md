@@ -270,3 +270,27 @@ D.__mro__
   ```
 * Class A is **anti-pattern**: If multiple inheritance is used,
   a direct parent call will probably violate the MRO
+
+## Attribute binding and *descriptor protocol*
+
+### Locate object *attribute* in two steps
+1. *local* `o.__dict__` (if not found goto 2.)
+2. Lookup `o.__class__.__dict__`
+
+There's extra _magic_ (probably for subclasses)
+```python
+class Child(Parent): pass
+
+c = Child()
+c.__class__.__dict__
+mappingproxy({'__module__': '__main__', '__doc__': None})
+```
+
+### Magic?
+* Access to attributes of classes involves one extra processing step,
+  called *descriptor protocol*
+* Whenever an attribute is accessed on a class, the attribute is checked to see
+  if it is an object that looks like a *descriptor*
+* A *descriptor* is an object with one or more of the following methods
+  `d.__get__(obj, cls)`, `d.__set__(obj, value)`, `d.__delete__(obj)`
+* If a *descriptor* is detected, one of the above methods gets triggered on access

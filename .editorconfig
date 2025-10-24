@@ -1,0 +1,25 @@
+# Editor configuration, see https://editorconfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# General settings
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Makefiles always use tabs for indentation
+[Makefile]
+indent_style = tab
+indent_size = unset # Allow user-defined tab width
+
+[*.md]
+# Markdown renders \b\b at EoL as <BR>
+trim_trailing_whitespace = false
+
+# Source code files
+[*.{gradle,java,kt,sql,sh,py,kts}]
+indent_style = space
+indent_size = 2
