@@ -294,3 +294,36 @@ mappingproxy({'__module__': '__main__', '__doc__': None})
 * A *descriptor* is an object with one or more of the following methods
   `d.__get__(obj, cls)`, `d.__set__(obj, value)`, `d.__delete__(obj)`
 * If a *descriptor* is detected, one of the above methods gets triggered on access
+
+## Closures
+* Essential feature (hangs on "first-class" functions, i.e. a function may be returned)
+* Common applications:
+  * Alternate evaluation (e.g., "delayed evaluation)
+  * Callback functions
+  * Code creation ("macros")
+
+### Data encapsulation
+```python
+def counter(value):
+  def incr():
+    nonlocal value
+    value += 1
+    return value
+
+  def decr():
+    nonlocal value
+    value -= 1
+    return value
+
+  def val():
+    nonlocal value
+    return value
+
+  return incr, decr, val
+
+up, down, val = counter(0)
+up()
+down()
+down()
+val()
+```
