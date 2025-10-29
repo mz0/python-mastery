@@ -1,13 +1,22 @@
 # reader.py
-
 import csv
+import logging
 
+log = logging.getLogger(__name__)
 
 def convert_csv(lines_in, func, headers=None):
   rows = csv.reader(lines_in)
   if headers is None:
     headers = next(rows)
-  return list(map(lambda row: func(row, headers), rows))
+
+  records = []
+  for nr, row in enumerate(rows, start=1):
+    try:
+      records.append(func(row, headers))
+    except ValueError as e:
+      log.warning('Row %s: Bad row: %s', nr, row)
+      log.debug('Row %s: Reason: %s', nr, e)
+  return records
 
 
 def csv_as_dicts(lines_in, types, *, headers=None):
