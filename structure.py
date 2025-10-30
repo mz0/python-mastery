@@ -1,11 +1,16 @@
 # structure.py
 
+import sys
+
 class Structure:
     _fields = ()
-    def __init__(self, *args):
-        if len(args) != len(self._fields):
-            raise TypeError('Expected %d arguments' % len(self._fields))
-        for name, val in zip(self._fields, args):
+
+    @staticmethod
+    def _init():
+        locs = sys._getframe(1).f_locals
+        self = locs['self']
+        for name, val in locs.items():
+            if name == 'self': continue
             setattr(self, name, val)
 
     def __setattr__(self, name, value):
