@@ -1,9 +1,14 @@
 # structure.py
-
+import inspect
 import sys
 
 class Structure:
     _fields = ()
+
+    @classmethod
+    def set_fields(cls):
+      sig = inspect.signature(cls)
+      _fields = tuple(sig.parameters)
 
     @staticmethod
     def _init():

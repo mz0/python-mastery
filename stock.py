@@ -14,3 +14,5 @@ class Stock(Structure):
     def sell(self, nshares):
         self.shares -= nshares
 
+
+Stock.set_fields()
