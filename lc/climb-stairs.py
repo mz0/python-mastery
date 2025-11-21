@@ -10,36 +10,25 @@ Constraints: 1 <= n <= 45
 """
 
 class Solution:
-    fib45 = [0] * 46  # 17.86 MB Beats 29.86%
+    fib45 = []  # 17.62 MB Beats 78.08%
 
-    def __init__(self):
-      self.fib45[1] = 1
-      self.fib45[2] = 2
-      for i in range(3, 46):
-        self.fib45[i] = self.fib45[i - 2] + self.fib45[i - 1]
+    def __init__(self, n_max):
+      self.fib45 = list(self.fibonacci_generator(n_max))
 
-    def climbStairs(self, n: int) -> int:
-      if n == 1:
-        return 1
-      elif n == 2:
-        return 2
-      else:
-        n_1th = 2
-        n_2th = 1
-        i = 2
-        result = 0
-        while i < n:
-          result = n_1th + n_2th
-          i += 1
-          n_2th = n_1th
-          n_1th = result
+    @staticmethod
+    def fibonacci_generator(m):
+      a, b = 1, 2
+      for _ in range(m):
+        yield a
+        a, b = b, a + b
 
-        return result
+    def climb12(self, n: int) -> int:
+      return self.fib45[n - 1]
 
 
 if __name__ == '__main__':
-  sol = Solution()
-  print(sol.climbStairs(4))
-  print(sol.climbStairs(5))
-  print(sol.climbStairs(6))
-  print(sol.climbStairs(45))
+  sol = Solution(45)
+  assert sol.climb12(5) == 8
+  assert sol.climb12(6) == 13
+  assert sol.climb12(45) == 1836311903
+  print(sol.climb12(45))
