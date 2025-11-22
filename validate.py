@@ -54,32 +54,39 @@ class NonEmptyString(String, NonEmpty):
 
 from inspect import signature
 
-class ValidatedFunction:
-    def __init__(self, func):
-        self.func = func
-        self.signature = signature(func)
-        self.annotations = dict(func.__annotations__)
-        self.retcheck = self.annotations.pop('return', None)
+def validated(func):
+  sig = signature(func)
+  annotations = { name:val for name, val in func.__annotations__.items() if isvalidator(val) }
+  retcheck = annotations.pop('return', None)
 
-    def __call__(self, *args, **kwargs):
-        bound = self.signature.bind(*args, **kwargs)
+  def wrapper(*args, **kwargs):
+    bound = sig.bind(*args, **kwargs)
+    for name, validator in annotations.items():
+            validator.check(bound.arguments[name])
+    result = func(*args, **kwargs)
+    if retcheck:
+      retcheck.check(result)
+    return result
 
-        for name, val in self.annotations.items():
-            val.check(bound.arguments[name])
+  return wrapper
 
-        result = self.func(*args, **kwargs)
-
-        if self.retcheck:
-            self.retcheck.check(result)
-
-        return result
+def isvalidator(item):
+    return isinstance(item, type) and issubclass(item, Validator)
 
 # Examples
 if __name__ == '__main__':
+
+    @validated
     def add(x:Integer, y:Integer) -> Integer:
         return x + y
 
-    add = ValidatedFunction(add)
+    assert add(1, 2) == 3
+
+    try:
+      add('1', '2')
+    except TypeError as e:
+      if e.__str__() == "Expected <class 'int'>":
+        print("Some Integer validation error reported")
 
     class Stock:
         name = NonEmptyString()
@@ -97,5 +104,6 @@ if __name__ == '__main__':
         def cost(self):
             return self.shares * self.price
 
+        @validated
         def sell(self, nshares):
             self.shares -= nshares
